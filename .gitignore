@@ -1,0 +1,10 @@
+*
+
+!.gitignore
+!requirements.txt
+!README.md
+
+!demos/
+!demos/**
+!reports/
+!reports/**
