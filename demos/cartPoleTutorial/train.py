@@ -7,6 +7,8 @@ import gymnasium as gym
 import math
 import random
 import time
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
@@ -19,9 +21,6 @@ import torch.nn.functional as F
 from model import DQN
 
 env = gym.make("CartPole-v1")
-
-# set up matplotlib
-plt.ion()
 
 # if GPU is to be used
 device = torch.device(
@@ -112,14 +111,11 @@ def select_action(state):
 episode_durations = []
 
 
-def plot_durations(show_result=False):
+def plot_durations():
     plt.figure(1)
+    plt.clf()
     durations_t = torch.tensor(episode_durations, dtype=torch.float)
-    if show_result:
-        plt.title('Result')
-    else:
-        plt.clf()
-        plt.title('Training...')
+    plt.title('Result')
     plt.xlabel('Episode')
     plt.ylabel('Duration')
     plt.plot(durations_t.numpy())
@@ -128,8 +124,7 @@ def plot_durations(show_result=False):
         means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
         means = torch.cat((torch.zeros(99), means))
         plt.plot(means.numpy())
-
-    plt.pause(0.001)  # pause a bit so that plots are updated
+    plt.savefig("demos/cartPoleTutorial/output/training_durations.png", dpi=150)
 
 
 
@@ -219,13 +214,13 @@ for i_episode in range(num_episodes):
 
         if done:
             episode_durations.append(t + 1)
-            plot_durations()
+            if (i_episode + 1) % 25 == 0:
+                recent = sum(episode_durations[-25:]) / min(25, len(episode_durations))
+                print(f"Episode {i_episode + 1}/{num_episodes} | avg duration (last 25): {recent:.1f}", flush=True)
             break
 
 torch.save(policy_net.state_dict(), "demos/cartPoleTutorial/output/cartpole_dqn.pt")
 
 elapsed = time.time() - start_time
 print(f'Complete in {elapsed:.1f}s ({elapsed/num_episodes:.3f}s per episode)')
-plot_durations(show_result=True)
-plt.ioff()
-plt.show()
+plot_durations()
