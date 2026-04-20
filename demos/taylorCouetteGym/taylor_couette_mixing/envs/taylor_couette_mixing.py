@@ -78,7 +78,7 @@ class TaylorCouetteMixingEnv(gym.Env):
              Mz = result["Mz_kin"] * 1000
              powers.append(Mz * omega_rad)
              times.append(result["t"])
-        E = np.trapz(powers, times) # Energy consumption of this time step
+        E = np.trapezoid(powers, times) # Energy consumption of this time step
 
         # OpenFOAM simulates a r by h wedge of the annulus
         # There are 20 equally spaced bins between r_in and r_out at the bottom with concentrations at each.
